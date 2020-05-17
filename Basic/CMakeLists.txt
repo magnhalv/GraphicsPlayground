@@ -5,7 +5,7 @@ include(CTest)
 enable_testing()
 
 
-add_executable(Basic main.cpp ../lib/glad.c)
+add_executable(Basic main.cpp ../lib/glad.c ./stb_image.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
 target_link_libraries(Basic glfw)
