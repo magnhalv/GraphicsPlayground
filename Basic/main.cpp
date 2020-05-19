@@ -12,7 +12,7 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-int generate_texture(const char *path);
+int generate_texture(const char *path, bool hasAlphaChannel = false);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -106,8 +106,13 @@ int main()
     // render loop
     // -----------
 
-    int texture = generate_texture("./resources/textures/wall.jpg");
-    std::cout << "Hei" << std::endl;
+    int woodTexture = generate_texture("./resources/textures/wooden_container.jpg");
+    int smileTexture = generate_texture("./resources/textures/awesomeface.png", true);
+
+    shader.use();
+    shader.setInt("texture1", 0);
+    shader.setInt("texture2", 1);
+
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -120,8 +125,10 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw our first triangle
-        glBindTexture(GL_TEXTURE_2D, texture);        
-        shader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, smileTexture);
         
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -162,7 +169,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-int generate_texture(const char *path) {    
+int generate_texture(const char *path, bool hasAlphaChannel) {
+    stbi_set_flip_vertically_on_load(true);  
     int width, height, nrChannels;
     unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
 
@@ -180,7 +188,8 @@ int generate_texture(const char *path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, hasAlphaChannel ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
     return texture;
