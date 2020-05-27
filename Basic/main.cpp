@@ -18,6 +18,8 @@ int generate_texture(const char *path, bool hasAlphaChannel = false);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+float mix = 0.2;
+
 int main()
 {
     // glfw: initialize and configure
@@ -113,6 +115,9 @@ int main()
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
 
+    int mixLocation = glGetUniformLocation(shader.ID, "mixVal");
+    
+
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -129,6 +134,8 @@ int main()
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, smileTexture);
+
+        glUniform1f(mixLocation, mix);
         
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -156,8 +163,19 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+        
+
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        if (mix > 0) mix += -0.01;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        if (mix < 1) mix += 0.01;
+    }
+        
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
