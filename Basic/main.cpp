@@ -4,6 +4,10 @@
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 #include <math.h>
 
@@ -13,6 +17,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 int generate_texture(const char *path, bool hasAlphaChannel = false);
+glm::mat4 generate_matrix(bool first);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -116,7 +121,6 @@ int main()
     shader.setInt("texture2", 1);
 
     int mixLocation = glGetUniformLocation(shader.ID, "mixVal");
-    
 
     while (!glfwWindowShouldClose(window))
     {
@@ -135,10 +139,16 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, smileTexture);
 
-        glUniform1f(mixLocation, mix);
+        shader.setFloat("mixVal", mix);
+        shader.setMat4("transform", generate_matrix(false));
         
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        shader.setMat4("transform", generate_matrix(true));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // glBindVertexArray(0); // no need to unbind it every time 
  
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -211,5 +221,12 @@ int generate_texture(const char *path, bool hasAlphaChannel) {
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
     return texture;
+}
+
+glm::mat4 generate_matrix(bool first) {
+    glm::mat4 trans = glm::mat4(1.0);    
+    trans = glm::translate(trans, glm::vec3(0.5, first ? -0.5 : 0.5, 0));
+    trans = glm::rotate(trans, (float)sin(glfwGetTime()), glm::vec3(0, 0, 1.0));
+    return trans;
 }
 

@@ -4,6 +4,7 @@ project(Basic VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
+include_directories(../lib)
 
 add_executable(Basic main.cpp ../lib/glad.c ./stb_image.cpp)
 
