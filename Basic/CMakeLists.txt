@@ -6,7 +6,7 @@ enable_testing()
 
 include_directories(../lib)
 
-add_executable(Basic src/main.cpp ../lib/glad.c ./src/stb_image.cpp)
+add_executable(Basic main.cpp ../lib/glad.c ./stb_image.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
 target_link_libraries(Basic glfw)
